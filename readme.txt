@@ -20,7 +20,9 @@ This API use the 7-zip dll (7z.dll) to read and write all 7-zip supported archiv
 - Autor: Henri Gourvest <hgourvest@progdigy.com>
 - Licence: MPL1.1
 - Date: 15/04/2009
-- Version: 1.2
+- Version: 1.2.6
+
+The included 7z.dll library version 19.00 is compiled for x64 ISA with debug symbols.
 
 Reading archive:
 
@@ -31,6 +33,17 @@ begin
    OpenFile('c:\test.zip');
    ExtractTo('c:\test');
 end;
+
+
+Extract multi volume zip archive:
+MultiVolumeFileName:='c:\test.zip'; // this is necessary for 7z.dll to find next zip volume
+with CreateInArchive(CLSID_CFormatZip) do
+begin
+   OpenStream(T7zStream.Create(TFileStream.Create(MultiVolumeFileName, fmOpenRead), soOwned);
+   SetPassword('password');
+   ExtractTo('c:\test');
+end;
+
 
 Get file list:
 获取文件列表:

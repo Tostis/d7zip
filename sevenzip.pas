@@ -47,6 +47,9 @@ BUG修改:
 
 //also you can use JclCompression instead of this.
 
+//V1.2.6
+//add support for multi volume zip files.
+
 unit sevenzip;
 {$ALIGN ON}
 {$MINENUMSIZE 4}
@@ -65,7 +68,9 @@ uses
 var
   //fix by 刘志林
   G_7zWorkPath: string; {工作路径，查找dll用}
-
+  // this is necessary for 7z.dll to find next zip volume
+  MultiVolumeFileName: string;
+  
 const
   //fix by flying wang.
   kCallBackError  = $0FFFFFFF;
@@ -1764,17 +1769,26 @@ begin
     Result := S_FALSE;
 end;
 
+// IArchiveOpenVolumeCallback BEGIN
+
 function T7zInArchive.GetProperty(propID: PROPID;
   var value: OleVariant): HRESULT;
 begin
+  case propID of
+   kpidName: value := StringReplace(MultiVolumeFileName, ExtractFilePath(MultiVolumeFileName), '',[rfIgnoreCase]);
+  end;
   Result := S_OK;
 end;
 
+// 7z.dll is asking for next volume. See T7zInArchive.GetProperty(propID: PROPID;  var value: OleVariant): HRESULT;
 function T7zInArchive.GetStream(const name: PWideChar;
   var inStream: IInStream): HRESULT;
 begin
+  inStream := T7zStream.Create(TFileStream.Create(ExtractFilePath(MultiVolumeFileName) + name, fmOpenRead), soOwned);
   Result := S_OK;
 end;
+
+// IArchiveOpenVolumeCallback END
 
 procedure T7zInArchive.SetPasswordCallback(sender: Pointer;
   callback: T7zPasswordCallback); stdcall;
