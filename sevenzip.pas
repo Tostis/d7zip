@@ -1806,7 +1806,7 @@ end;
 
 function T7zInArchive.GetItemName(const index: integer): UnicodeString; stdcall;
 begin
-  Result := UnicodeString(GetItemProp(index, kpidName));
+  Result := UnicodeString(GetItemProp(index, kpidPath));
 end;
 
 function T7zInArchive.GetItemSize(const index: integer): Int64; stdcall;
